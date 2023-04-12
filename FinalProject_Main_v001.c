@@ -62,4 +62,6 @@ void initModeButton(void) {
      
     __builtin_write_OSCCONL(OSCCON | 0x40); // lock   PPS
     
+    
+    // junk
 }
