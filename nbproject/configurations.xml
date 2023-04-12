@@ -13,6 +13,8 @@
                    displayName="Source Files"
                    projectFiles="true">
       <itemPath>FinalProject_Main_v001.c</itemPath>
+      <itemPath>FinalProject_LEDLibrary_v001.c</itemPath>
+      <itemPath>FinalProject_LEDLibrary.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

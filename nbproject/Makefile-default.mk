@@ -57,17 +57,17 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Source Files Quoted if spaced
-SOURCEFILES_QUOTED_IF_SPACED=FinalProject_Main_v001.c
+SOURCEFILES_QUOTED_IF_SPACED=FinalProject_Main_v001.c FinalProject_LEDLibrary_v001.c
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/FinalProject_Main_v001.o
-POSSIBLE_DEPFILES=${OBJECTDIR}/FinalProject_Main_v001.o.d
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/FinalProject_Main_v001.o ${OBJECTDIR}/FinalProject_LEDLibrary_v001.o
+POSSIBLE_DEPFILES=${OBJECTDIR}/FinalProject_Main_v001.o.d ${OBJECTDIR}/FinalProject_LEDLibrary_v001.o.d
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/FinalProject_Main_v001.o
+OBJECTFILES=${OBJECTDIR}/FinalProject_Main_v001.o ${OBJECTDIR}/FinalProject_LEDLibrary_v001.o
 
 # Source Files
-SOURCEFILES=FinalProject_Main_v001.c
+SOURCEFILES=FinalProject_Main_v001.c FinalProject_LEDLibrary_v001.c
 
 
 
@@ -101,12 +101,24 @@ ${OBJECTDIR}/FinalProject_Main_v001.o: FinalProject_Main_v001.c  .generated_file
 	@${RM} ${OBJECTDIR}/FinalProject_Main_v001.o 
 	${MP_CC} $(MP_EXTRA_CC_PRE)  FinalProject_Main_v001.c  -o ${OBJECTDIR}/FinalProject_Main_v001.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/FinalProject_Main_v001.o.d"      -g -D__DEBUG     -omf=elf -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -O0 -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
 	
+${OBJECTDIR}/FinalProject_LEDLibrary_v001.o: FinalProject_LEDLibrary_v001.c  .generated_files/flags/default/a51d6ec85189de6f7458993100cdcfba7a88a5ac .generated_files/flags/default/4f26fc17b1b08a26e7499c8c7a622ac16dba8976
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/FinalProject_LEDLibrary_v001.o.d 
+	@${RM} ${OBJECTDIR}/FinalProject_LEDLibrary_v001.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  FinalProject_LEDLibrary_v001.c  -o ${OBJECTDIR}/FinalProject_LEDLibrary_v001.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/FinalProject_LEDLibrary_v001.o.d"      -g -D__DEBUG     -omf=elf -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -O0 -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
+	
 else
 ${OBJECTDIR}/FinalProject_Main_v001.o: FinalProject_Main_v001.c  .generated_files/flags/default/8e186f68f3f12881b3ffadc574c1fadd28d1a461 .generated_files/flags/default/4f26fc17b1b08a26e7499c8c7a622ac16dba8976
 	@${MKDIR} "${OBJECTDIR}" 
 	@${RM} ${OBJECTDIR}/FinalProject_Main_v001.o.d 
 	@${RM} ${OBJECTDIR}/FinalProject_Main_v001.o 
 	${MP_CC} $(MP_EXTRA_CC_PRE)  FinalProject_Main_v001.c  -o ${OBJECTDIR}/FinalProject_Main_v001.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/FinalProject_Main_v001.o.d"        -g -omf=elf -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -O0 -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
+	
+${OBJECTDIR}/FinalProject_LEDLibrary_v001.o: FinalProject_LEDLibrary_v001.c  .generated_files/flags/default/77b97c83977842b1c700be77b68b88ea901816d2 .generated_files/flags/default/4f26fc17b1b08a26e7499c8c7a622ac16dba8976
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/FinalProject_LEDLibrary_v001.o.d 
+	@${RM} ${OBJECTDIR}/FinalProject_LEDLibrary_v001.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  FinalProject_LEDLibrary_v001.c  -o ${OBJECTDIR}/FinalProject_LEDLibrary_v001.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/FinalProject_LEDLibrary_v001.o.d"        -g -omf=elf -DXPRJ_default=$(CND_CONF)  -legacy-libc  $(COMPARISON_BUILD)  -O0 -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
 	
 endif
 
