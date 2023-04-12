@@ -36,6 +36,15 @@ void setup(void)
 }
 
 int main(void) {
+    setup();
+    
+    
+    while(1){
+        writeColor(127,0,127);
+        
+        
+    }
+    
     
     return 0;
 }
