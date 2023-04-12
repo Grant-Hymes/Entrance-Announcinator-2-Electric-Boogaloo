@@ -12,7 +12,7 @@
 extern "C" {
 #endif
 
-
+ void writeColor(int r, int g, int b);
 
 
 #ifdef	__cplusplus
