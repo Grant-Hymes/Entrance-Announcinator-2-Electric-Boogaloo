@@ -15,6 +15,8 @@
       <itemPath>FinalProject_Main_v001.c</itemPath>
       <itemPath>FinalProject_LEDLibrary_v001.c</itemPath>
       <itemPath>FinalProject_LEDLibrary.h</itemPath>
+      <itemPath>FinalProject_ASMLibrary.s</itemPath>
+      <itemPath>FinalProject_ASMLibrary.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

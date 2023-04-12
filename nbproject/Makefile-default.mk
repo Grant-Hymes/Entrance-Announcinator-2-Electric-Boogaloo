@@ -57,17 +57,17 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Source Files Quoted if spaced
-SOURCEFILES_QUOTED_IF_SPACED=FinalProject_Main_v001.c FinalProject_LEDLibrary_v001.c
+SOURCEFILES_QUOTED_IF_SPACED=FinalProject_Main_v001.c FinalProject_LEDLibrary_v001.c FinalProject_ASMLibrary.s
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/FinalProject_Main_v001.o ${OBJECTDIR}/FinalProject_LEDLibrary_v001.o
-POSSIBLE_DEPFILES=${OBJECTDIR}/FinalProject_Main_v001.o.d ${OBJECTDIR}/FinalProject_LEDLibrary_v001.o.d
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/FinalProject_Main_v001.o ${OBJECTDIR}/FinalProject_LEDLibrary_v001.o ${OBJECTDIR}/FinalProject_ASMLibrary.o
+POSSIBLE_DEPFILES=${OBJECTDIR}/FinalProject_Main_v001.o.d ${OBJECTDIR}/FinalProject_LEDLibrary_v001.o.d ${OBJECTDIR}/FinalProject_ASMLibrary.o.d
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/FinalProject_Main_v001.o ${OBJECTDIR}/FinalProject_LEDLibrary_v001.o
+OBJECTFILES=${OBJECTDIR}/FinalProject_Main_v001.o ${OBJECTDIR}/FinalProject_LEDLibrary_v001.o ${OBJECTDIR}/FinalProject_ASMLibrary.o
 
 # Source Files
-SOURCEFILES=FinalProject_Main_v001.c FinalProject_LEDLibrary_v001.c
+SOURCEFILES=FinalProject_Main_v001.c FinalProject_LEDLibrary_v001.c FinalProject_ASMLibrary.s
 
 
 
@@ -125,7 +125,19 @@ endif
 # ------------------------------------------------------------------------------------
 # Rules for buildStep: assemble
 ifeq ($(TYPE_IMAGE), DEBUG_RUN)
+${OBJECTDIR}/FinalProject_ASMLibrary.o: FinalProject_ASMLibrary.s  .generated_files/flags/default/a5d21de1396cb622bb690dadbfb8588177615579 .generated_files/flags/default/4f26fc17b1b08a26e7499c8c7a622ac16dba8976
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/FinalProject_ASMLibrary.o.d 
+	@${RM} ${OBJECTDIR}/FinalProject_ASMLibrary.o 
+	${MP_CC} $(MP_EXTRA_AS_PRE)  FinalProject_ASMLibrary.s  -o ${OBJECTDIR}/FinalProject_ASMLibrary.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -D__DEBUG   -omf=elf -DXPRJ_default=$(CND_CONF)  -legacy-libc  -Wa,-MD,"${OBJECTDIR}/FinalProject_ASMLibrary.o.d",--defsym=__MPLAB_BUILD=1,--defsym=__ICD2RAM=1,--defsym=__MPLAB_DEBUG=1,--defsym=__DEBUG=1,,-g,--no-relax$(MP_EXTRA_AS_POST)  -mdfp="${DFP_DIR}/xc16"
+	
 else
+${OBJECTDIR}/FinalProject_ASMLibrary.o: FinalProject_ASMLibrary.s  .generated_files/flags/default/778e1f76aaa34178c5aad7deeb3e53588c1ddb3e .generated_files/flags/default/4f26fc17b1b08a26e7499c8c7a622ac16dba8976
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/FinalProject_ASMLibrary.o.d 
+	@${RM} ${OBJECTDIR}/FinalProject_ASMLibrary.o 
+	${MP_CC} $(MP_EXTRA_AS_PRE)  FinalProject_ASMLibrary.s  -o ${OBJECTDIR}/FinalProject_ASMLibrary.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -omf=elf -DXPRJ_default=$(CND_CONF)  -legacy-libc  -Wa,-MD,"${OBJECTDIR}/FinalProject_ASMLibrary.o.d",--defsym=__MPLAB_BUILD=1,-g,--no-relax$(MP_EXTRA_AS_POST)  -mdfp="${DFP_DIR}/xc16"
+	
 endif
 
 # ------------------------------------------------------------------------------------
