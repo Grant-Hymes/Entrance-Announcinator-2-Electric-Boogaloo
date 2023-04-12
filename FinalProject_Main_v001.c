@@ -55,10 +55,10 @@ void initModeButton(void) {
     CNPU2bits.CN23PUE = 1; // set RP7 pull up resistor
     CNPU2bits.CN24PUE = 1; // set RP6 pull up resistor
     
-     __builtin_write_OSCCONL(OSCCON & 0xbf); // unlock PPS
+    __builtin_write_OSCCONL(OSCCON & 0xbf); // unlock PPS
      
-     RPINR0bits.INT1R = 7;  // Use Pin RP7 for External Interrupt 1
-     RPINR1bits.INT2R = 6;  // Use Pin RP6 for External Interrupt 2 
+    RPINR0bits.INT1R = 7;  // Use Pin RP7 for External Interrupt 1
+    RPINR1bits.INT2R = 6;  // Use Pin RP6 for External Interrupt 2 
      
     __builtin_write_OSCCONL(OSCCON | 0x40); // lock   PPS
     
