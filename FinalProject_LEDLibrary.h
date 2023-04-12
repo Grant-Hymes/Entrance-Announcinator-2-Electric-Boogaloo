@@ -14,7 +14,6 @@ extern "C" {
 
  void writeColor(int r, int g, int b);
 
-
 #ifdef	__cplusplus
 }
 #endif
