@@ -6,6 +6,7 @@
  */
 #include "xc.h"
 #include "FinalProject_LEDLibrary.h"
+#include "FinalProject_BuzzerLibrary.h"
 
 void setup(void);
 int main(void);

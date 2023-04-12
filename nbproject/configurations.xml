@@ -17,6 +17,8 @@
       <itemPath>FinalProject_LEDLibrary.h</itemPath>
       <itemPath>FinalProject_ASMLibrary.s</itemPath>
       <itemPath>FinalProject_ASMLibrary.h</itemPath>
+      <itemPath>FinalProject_BuzzerLibrary_v001.c</itemPath>
+      <itemPath>FinalProject_BuzzerLibrary.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
