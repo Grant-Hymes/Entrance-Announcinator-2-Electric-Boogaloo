@@ -15,14 +15,9 @@ enum {
     LIDAR_READ = 1,
 };
 
+/* FinalProject_LIDARIOLibrary_v001 */
 char lidar_read_cmd(uint16_t addr);
 void lidar_write_cmd(uint16_t addr, char data);
-
-void lidar_set_cursor(char x, char y);
-void lidar_shift_right(void);
-
-void lidar_print_char(char data);
-void lidar_print_string(char *data);
 
 void lidar_init(void);
     
