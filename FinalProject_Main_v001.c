@@ -27,6 +27,15 @@ int main(void);
                                        // Fail-Safe Clock Monitor is enabled)
 #pragma config FNOSC = FRCPLL      // Oscillator Select (Fast RC Oscillator with PLL module (FRCPLL))
 
+enum mode {
+    startup = 0,
+    ready = 1,
+    armed = 2,
+    tripped = 3,    
+};
+
+enum mode curMode;
+
 void setup(void)
 {
     // execute once code goes here
@@ -34,23 +43,25 @@ void setup(void)
     AD1PCFG = 0x9fff;            //sets all pins to digital I/O
     TRISA = 0b1111111111111110;  //Set pin RA0 to output
     LATA = 0x0001;               //Set pin RA0 high
+    
+    curMode = startup;
+    writeColor(255,80,0);
 }
 
 int main(void) {
-    setup();
+    setup();    
+    initButtons();   
     
+    curMode = ready;
     
     while(1){
-        writeColor(127,0,127);
-        
-        
+                    
     }
-    
     
     return 0;
 }
 
-void initModeButton(void) {
+void initButtons(void) {
     TRISBbits.TRISB7 = 1; // enable pin input on RB7
     TRISBbits.TRISB6 = 1; // enable pin input on RP6
     CNPU2bits.CN23PUE = 1; // set RP7 pull up resistor
@@ -63,8 +74,32 @@ void initModeButton(void) {
      
     __builtin_write_OSCCONL(OSCCON | 0x40); // lock   PPS
     
+    _INT1EP = 1; // negative edge
+    _INT2EP = 1; // negative edge
+    _INT1IF = 0; // reset interrupt flag
+    _INT2IF = 0;
+    _INT1IE = 1; // interrupt enable
+    _INT2IE = 1;
+}
+
+// mode button
+void __attribute__((__interrupt__,__auto_psv__)) _INT1Interrupt(void) {
+   _INT1IF = 0;
+   
+   // change mode
+   if (curMode == ready) {
+       curMode = armed;
+       writeColor(255,0,0);
+   } 
+}
+
+// self destruct button
+void __attribute__((__interrupt__,__auto_psv__)) _INT2Interrupt(void) {
+    _INT2IF = 0;
     
-    // junk
-    // More junk
-    //nice
+    
+    // do whatever after self destruct
+    writeColor(255,255,0);
+    
+    
 }
