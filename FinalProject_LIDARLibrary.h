@@ -11,12 +11,12 @@ extern "C" {
     
 enum {
     LIDAR_ADDR = 0b01010010,
-    RECEIVE = 0,
-    TRANSMIT = 1,
+    LIDAR_WRITE = 0,
+    LIDAR_READ = 1,
 };
 
-void lidar_read_cmd(char command);
-void lidar_write_cmd(char command);
+char lidar_read_cmd(uint16_t addr);
+void lidar_write_cmd(uint16_t addr, char data);
 
 void lidar_set_cursor(char x, char y);
 void lidar_shift_right(void);
