@@ -20,6 +20,7 @@ extern "C" {
 //    static int overflow_target;
 //    static int remainder;
     
+    void set_song(int lhold[], char lnote[], int loctave[], int size);
     int play_music(int steps, int tempo);
     void set_note(char note, int octave);
     void init_tempo(int tempo);

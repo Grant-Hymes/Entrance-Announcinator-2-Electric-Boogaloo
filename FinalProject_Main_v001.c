@@ -36,6 +36,16 @@ enum mode {
     boom = 4,
 };
 
+ // Doof Theme
+ int Dhold[] =  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+ char Dnote[] =  {'C', 'A', 'C', 'E', 'C', 'E', 'G', 'G', 'G', 'G', ' '};
+ int Doctave[] = {3, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3};
+ 
+ // Perry Theme
+ int Phold[] =   {0,0,0,0,0,1,0,0,1,0,0,0,0,1,0,1,    0,1,0,0,1,1 };
+ char Pnote[] =  {'D','D','E','D','F','F','G','D','D','D','E','D','F','F','G','G','A','A','a','A','A','A'};
+ int Poctave[] = {2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,    3,3,3,3,3,3,3};
+
 enum mode curMode;
 int setRange = 0; // range the sensor is calibrated to be at default
 int curRange = 0; // current range being measured by the sensor
@@ -56,7 +66,7 @@ int main() {
     setup();    
     initButtons();
     init_speaker();
-    init_lidar();
+    // init_lidar();
     
     // only for testing
     curMode = ready;
@@ -66,12 +76,12 @@ int main() {
        
         
         
-    if (abs(setRange - curRange) > 20) {
-        curMode = tripped;
-        writeColor(75,37,96);
-        set_note('C',3);
-        // play DEI theme
-    }   
+     if (abs(setRange - curRange) > 20) {
+            curMode = tripped;
+            writeColor(75,37,96);
+            set_note('C',4);
+            // play DEI theme
+        }    
         
         
         
@@ -100,6 +110,7 @@ void initButtons(void) {
     _INT2IF = 0;
     _INT1IE = 1; // interrupt enable
     _INT2IE = 1;
+    _INT2IP = 7;
 }
 
 // mode button
@@ -110,7 +121,9 @@ void __attribute__((__interrupt__,__auto_psv__)) _INT1Interrupt(void) {
    if (curMode == ready) {
        curMode = armed;
        writeColor(255,0,0);
-       set_note('C',3);
+       set_song(Dhold,Dnote,Doctave,11);
+       
+       play_music(11, 120);
        
        // setRange = sensordata(); 
    } 
@@ -121,10 +134,14 @@ void __attribute__((__interrupt__,__auto_psv__)) _INT2Interrupt(void) {
     _INT2IF = 0;
     
     curMode = boom;
-    set_note(' ',3);
+    
  
     writeColor(255,255,0);
     
-    // play perry theme
+    set_song(Phold,Pnote,Poctave,23);
+    play_music(23,165);
+    set_note(' ',3);
+    
+    writeColor(255,255,255);
     // potential animation light ??
 }
