@@ -41,7 +41,10 @@ int calculate_prescaler(long int cycles) {
 }
 
 int calculate_PRx (long int cycles, int prescaler) {
-    return (cycles / prescaler) -1;
+    if (prescaler == 0) return (cycles / 1) -1;
+    if (prescaler == 1) return (cycles / 8) -1;
+    if (prescaler == 2) return (cycles / 64) -1;
+    return (cycles / 256) -1;
 }
 
 void init_speaker(void) {
