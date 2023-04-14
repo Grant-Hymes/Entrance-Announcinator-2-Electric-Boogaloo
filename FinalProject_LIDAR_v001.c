@@ -83,7 +83,7 @@ void lidar_set_timing_budget_us(uint32_t budget_us)
     range_config_timeout_us = (budget_us - LIDAR_DEFAULT_TIMING_GUARD) / 2;
 
     /* VCSEL Period A */
-    macro_period_us = lidar_calc_macro_period_us(osc_frequency, 0x0B);
+    macro_period_us = lidar_calc_macro_period_us(osc_frequency, 0x0f);
 
     phase_timeout_mclks = lidar_timeout_us_to_mclks(1000, macro_period_us);
     if (phase_timeout_mclks > 0xFF)
@@ -103,7 +103,7 @@ void lidar_set_timing_budget_us(uint32_t budget_us)
     );
 
     /* VCSEL Period B */
-    macro_period_us = lidar_calc_macro_period_us(osc_frequency, 0x09);
+    macro_period_us = lidar_calc_macro_period_us(osc_frequency, 0x0d);
 
     /* MM Timing B */
     lidar_write_16bit_cmd(
@@ -259,15 +259,15 @@ void lidar_init(void)
     lidar_write_16bit_cmd(0x0054, 200 << 8); /* Effective SPADs select */
     lidar_write_8bit_cmd(0x004f, 2); /* Set requested active SPADs */
 
-    /* Short ranging mode (better ambient lighting resistance) */
-    lidar_write_8bit_cmd(0x0060, 0x07);
-    lidar_write_8bit_cmd(0x0063, 0x05);
-    lidar_write_8bit_cmd(0x0069, 0x38); /* nice */
+    /* Long ranging mode (better ambient lighting resistance) */
+    lidar_write_8bit_cmd(0x0060, 0x0f);
+    lidar_write_8bit_cmd(0x0063, 0x0d);
+    lidar_write_8bit_cmd(0x0069, 0xb8);
 
-    lidar_write_8bit_cmd(0x0078, 0x07);
-    lidar_write_8bit_cmd(0x0079, 0x05);
-    lidar_write_8bit_cmd(0x007a, 6);
-    lidar_write_8bit_cmd(0x007b, 6);
+    lidar_write_8bit_cmd(0x0078, 0x0f);
+    lidar_write_8bit_cmd(0x0079, 0x0d);
+    lidar_write_8bit_cmd(0x007a, 14);
+    lidar_write_8bit_cmd(0x007b, 14);
 
     lidar_set_timing_budget_us(100000); /* Timing measurement budget of 100 ms */
 
