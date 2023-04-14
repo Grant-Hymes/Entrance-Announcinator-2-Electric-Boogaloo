@@ -11,6 +11,7 @@
 
 void setup(void);
 int main(void);
+void initButtons(void);
 
 // CW1: FLASH CONFIGURATION WORD 1 (see PIC24 Family Reference Manual 24.1)
 #pragma config ICS = PGx1          // Comm Channel Select (Emulator EMUC1/EMUD1 pins are shared with PGC1/PGD1)
@@ -91,6 +92,7 @@ void __attribute__((__interrupt__,__auto_psv__)) _INT1Interrupt(void) {
    if (curMode == ready) {
        curMode = armed;
        writeColor(255,0,0);
+       // do else 
    } 
 }
 
