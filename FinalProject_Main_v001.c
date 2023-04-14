@@ -56,6 +56,7 @@ int main() {
     setup();    
     initButtons();
     init_speaker();
+    init_lidar();
     
     // only for testing
     curMode = ready;
