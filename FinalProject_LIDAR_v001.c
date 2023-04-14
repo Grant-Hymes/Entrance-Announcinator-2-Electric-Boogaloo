@@ -10,6 +10,8 @@
 #include "FinalProject_LIDARLibrary.h"
 
 static uint16_t osc_frequency, osc_calibration;
+static struct range_results latest_results;
+unsigned int calibrated = 0;
 
 void delay_ms(unsigned int ms)
 {
@@ -86,7 +88,7 @@ void lidar_set_timing_budget_us(uint32_t budget_us)
     phase_timeout_mclks = lidar_timeout_us_to_mclks(1000, macro_period_us);
     if (phase_timeout_mclks > 0xFF)
 		phase_timeout_mclks = 0xFF;
-    lidar_write_8bit_cmd(0x004b, 0xFF /* (char) phase_timeout_mclks */);
+    lidar_write_8bit_cmd(0x004b, (char) phase_timeout_mclks);
 
     /* MM Timing A */
     lidar_write_16bit_cmd(
@@ -121,6 +123,91 @@ void lidar_start_continuous_measurement(uint32_t period_ms)
     lidar_write_32bit_cmd(0x006c, period_ms * osc_calibration); /* Intermeasure period */
     lidar_write_8bit_cmd(0x0086, 0x01); /* Clear range interrupt */
     lidar_write_8bit_cmd(0x0087, 0x40); /* Start interrupt, timed mode */
+}
+
+void lidar_update_results(void)
+{
+    latest_results.range_status = lidar_read_8bit_cmd(0x0089);
+    latest_results.stream_count = lidar_read_8bit_cmd(0x008b);
+    latest_results.dss_actual_effective_spads_sd0 
+        = lidar_read_16bit_cmd(0x008c);
+    latest_results.ambient_count_rate_mcps_sd0 = lidar_read_16bit_cmd(0x008e);
+    latest_results.final_crosstalk_corrected_range_mm_sd0 
+        = lidar_read_16bit_cmd(0x0096);
+    latest_results.peak_signal_count_rate_crosstalk_corrected_mcps_sd0 
+        = lidar_read_16bit_cmd(0x0098);
+}
+
+void lidar_manually_calibrate(void)
+{
+    char saved_vhv_init, saved_vhv_timeout, vcsel_start;
+    
+    /* Save VHV config */
+    saved_vhv_init = lidar_read_8bit_cmd(0x000b);
+    saved_vhv_timeout = lidar_read_8bit_cmd(0x0008);
+
+    /* Disable VHV init */
+    lidar_write_8bit_cmd(0x000b, saved_vhv_init & 0x7F);
+
+    /* Set loop bound to LOWPOWERAUTO_VHV_LOOP_BOUND_DEFAULT */
+    lidar_write_8bit_cmd(0x0008, (saved_vhv_timeout & 0x03) + (3 << 2));
+
+    /* Override phasecal*/
+    vcsel_start = lidar_read_8bit_cmd(0x00d8);
+    lidar_write_8bit_cmd(0x004d, 0x01); /* Phase cal override */
+    lidar_write_8bit_cmd(0x0047, vcsel_start); /* Cal vcsel start */
+}
+
+void lidar_update_DSS(void)
+{
+    uint32_t total_rate_per_spad, required_spads;
+    uint16_t num_spads;
+    
+    num_spads = latest_results.dss_actual_effective_spads_sd0;
+
+    if (num_spads != 0) {
+        total_rate_per_spad =
+            (uint32_t) latest_results.peak_signal_count_rate_crosstalk_corrected_mcps_sd0 +
+            latest_results.ambient_count_rate_mcps_sd0;
+    
+        if (total_rate_per_spad > 0xFFFF)
+            total_rate_per_spad = 0xFFFF;
+
+        total_rate_per_spad <<= 16;
+        total_rate_per_spad /= num_spads;
+
+        if (total_rate_per_spad != 0) {
+            required_spads = (
+                (uint32_t) LIDAR_TARGET_DSS_TOTAL_RATE_MCPS << 16) / total_rate_per_spad;
+
+            if (required_spads > 0xFFFF)
+                required_spads = 0xFFFF;
+
+            lidar_write_16bit_cmd(0x0054, required_spads); /* Effective SPAD select */
+            return;
+        }
+    }
+    
+    /* At this point, there was a potential for a divide by zero, set a default SPAD of the midpoint */
+    lidar_write_16bit_cmd(0x0054, 0x8000);
+}
+
+uint16_t lidar_read_distance(void)
+{
+    uint16_t ret;
+    
+    lidar_update_results();
+    
+    if (!calibrated) {
+        lidar_manually_calibrate();
+        calibrated = 1;
+    }
+    
+    lidar_update_DSS();
+    
+    lidar_write_8bit_cmd(0x0086, 0x01); /* Clear range interrupt */
+    
+    return ((uint32_t) latest_results.final_crosstalk_corrected_range_mm_sd0 * 2011 + 0x0400) / 0x0800;
 }
 
 void lidar_init(void)
@@ -187,4 +274,7 @@ void lidar_init(void)
     /* Initialize range outer offsets */
     outer_offset = lidar_read_16bit_cmd(0x0022);
     lidar_write_16bit_cmd(0x001e, outer_offset * 4);
+    
+    /* Read every 50 ms */
+    lidar_start_continuous_measurement(50);
 }
