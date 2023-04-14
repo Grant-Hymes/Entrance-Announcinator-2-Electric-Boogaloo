@@ -28,6 +28,7 @@
 void setup(void);
 void initButtons(void);
 
+// various modes for operation
 enum mode {
     startup = 0,
     ready = 1,
@@ -42,9 +43,9 @@ enum mode {
  int Doctave[] = {3, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3};
  
  // Perry Theme
- int Phold[] =   {0,0,0,0,0,1,0,0,1,0,0,0,0,1,0,1,    0,1,0,0,1,1 };
- char Pnote[] =  {'D','D','E','D','F','F','G','D','D','D','E','D','F','F','G','G','A','A','a','A','A','A'};
- int Poctave[] = {2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,    3,3,3,3,3,3,3};
+ int Phold[] =   {0,0,0,0,0,1,0,0,1,0,0,0,0,1,0,1,0,1,0,0,1,1,0 };
+ char Pnote[] =  {'D','D','E','D','F','F','G','D','D','D','E','D','F','F','G','G','A','A','a','A','A','A', ' '};
+ int Poctave[] = {2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,3,3,3,3,3,3,3};
 
 enum mode curMode;
 int setRange = 0; // range the sensor is calibrated to be at default
@@ -77,10 +78,13 @@ int main() {
         
         
      if (abs(setRange - curRange) > 20) {
-            curMode = tripped;
-            writeColor(75,37,96);
-            set_note('C',4);
-            // play DEI theme
+        curMode = tripped;
+        writeColor(75,37,96);
+        
+        // plays the DEI theme
+        set_song(Dhold,Dnote,Doctave,11);
+        play_music(11, 120);
+            
         }    
         
         
@@ -133,15 +137,13 @@ void __attribute__((__interrupt__,__auto_psv__)) _INT1Interrupt(void) {
 void __attribute__((__interrupt__,__auto_psv__)) _INT2Interrupt(void) {
     _INT2IF = 0;
     
-    curMode = boom;
+    curMode = boom; // explosion mode
+   
+    writeColor(255,255,0); // changes color to yellow?
     
- 
-    writeColor(255,255,0);
-    
+    // plays the perry theme
     set_song(Phold,Pnote,Poctave,23);
     play_music(23,165);
-    set_note(' ',3);
-    
-    writeColor(255,255,255);
+
     // potential animation light ??
 }
