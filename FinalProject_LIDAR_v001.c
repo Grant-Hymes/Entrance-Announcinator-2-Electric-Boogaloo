@@ -6,6 +6,7 @@
  */
 
 #include "xc.h"
+#include <stdlib.h>
 #include "FinalProject_LIDARLibrary.h"
 
 static uint16_t osc_frequency, osc_calibration;
@@ -18,9 +19,108 @@ void delay_ms(unsigned int ms)
     }
 }
 
-void lidar_set_timing_budget_ms(unsigned int ms)
+uint32_t lidar_timeout_mclks_to_us(uint32_t timeout_mclks, uint32_t macro_period_us)
 {
+    return ((uint64_t) timeout_mclks * macro_period_us + 0x800) >> 12;
+}
 
+uint32_t lidar_timeout_us_to_mclks(uint32_t timeout_us, uint32_t macro_period_us)
+{
+    return (((uint32_t) timeout_us << 12) + (macro_period_us >> 1)) / macro_period_us;
+}
+
+uint32_t lidar_calc_macro_period_us(uint16_t osc_frequency, uint8_t vcsel_period)
+{
+    uint32_t pll_period_us = ((uint32_t)0x01 << 30) / osc_frequency;
+
+    uint8_t vcsel_period_pclks = (vcsel_period + 1) << 1;
+    uint32_t macro_period_us = (uint32_t)2304 * pll_period_us;
+    macro_period_us >>= 6;
+    macro_period_us *= vcsel_period_pclks;
+	macro_period_us = macro_period_us >> 6;
+
+    return macro_period_us;
+}
+
+uint16_t lidar_encode_timeout(uint32_t timeout_mclks)
+{
+    uint32_t encoded_timeout = 0, ls_byte = 0;
+    uint16_t ms_byte = 0;
+
+    if (timeout_mclks > 0) {
+		ls_byte = timeout_mclks - 1;
+
+		while ((ls_byte & 0xFFFFFF00) > 0) {
+			ls_byte = ls_byte >> 1;
+			ms_byte++;
+		}
+
+		encoded_timeout = (ms_byte << 8)
+				+ (uint16_t) (ls_byte & 0x000000FF);
+	}
+
+	return encoded_timeout;
+}
+
+uint16_t lidar_calc_encoded_timeout(uint32_t timeout_us, uint32_t macro_period_us)
+{
+    uint32_t timeout_mclks = 0;
+	uint16_t encoded_timeout = 0;
+
+	timeout_mclks = ((timeout_us << 12) + (macro_period_us >> 1))
+                    / macro_period_us;
+    encoded_timeout = lidar_encode_timeout(timeout_mclks);
+
+	return encoded_timeout;
+}
+
+void lidar_set_timing_budget_us(uint32_t budget_us)
+{
+    uint32_t range_config_timeout_us, macro_period_us, phase_timeout_mclks;
+
+    range_config_timeout_us = (budget_us - LIDAR_DEFAULT_TIMING_GUARD) / 2;
+
+    /* VCSEL Period A */
+    macro_period_us = lidar_calc_macro_period_us(osc_frequency, 0x0B);
+
+    phase_timeout_mclks = lidar_timeout_us_to_mclks(1000, macro_period_us);
+    if (phase_timeout_mclks > 0xFF)
+		phase_timeout_mclks = 0xFF;
+    lidar_write_8bit_cmd(0x004b, 0xFF /* (char) phase_timeout_mclks */);
+
+    /* MM Timing A */
+    lidar_write_16bit_cmd(
+        0x005a,
+        lidar_calc_encoded_timeout(1, macro_period_us)
+    );
+
+    /* Range Timing A */
+    lidar_write_16bit_cmd(
+        0x005e,
+        lidar_calc_encoded_timeout(range_config_timeout_us, macro_period_us)
+    );
+
+    /* VCSEL Period B */
+    macro_period_us = lidar_calc_macro_period_us(osc_frequency, 0x09);
+
+    /* MM Timing B */
+    lidar_write_16bit_cmd(
+        0x005c,
+        lidar_calc_encoded_timeout(1, macro_period_us)
+    );
+
+    /* Range Timing B */
+    lidar_write_16bit_cmd(
+        0x0061,
+        lidar_calc_encoded_timeout(range_config_timeout_us, macro_period_us)
+    );
+}
+
+void lidar_start_continuous_measurement(uint32_t period_ms)
+{
+    lidar_write_32bit_cmd(0x006c, period_ms * osc_calibration); /* Intermeasure period */
+    lidar_write_8bit_cmd(0x0086, 0x01); /* Clear range interrupt */
+    lidar_write_8bit_cmd(0x0087, 0x40); /* Start interrupt, timed mode */
 }
 
 void lidar_init(void)
@@ -31,8 +131,13 @@ void lidar_init(void)
     I2C2BRG = 0x9d;
     IFS3bits.MI2C2IF = 0;
     I2C2CONbits.I2CEN = 1;
-
     delay_ms(5);
+
+    /* Soft reset */
+    lidar_write_8bit_cmd(0x0000, 0x00);
+    delay_ms(1);
+    lidar_write_8bit_cmd(0x0000, 0x01);
+    delay_ms(1);
 
     osc_frequency = lidar_read_16bit_cmd(0x0006);
     osc_calibration = lidar_read_16bit_cmd(0x00de);
@@ -77,10 +182,9 @@ void lidar_init(void)
     lidar_write_8bit_cmd(0x007a, 6);
     lidar_write_8bit_cmd(0x007b, 6);
 
-    /* TODO: Timing Budget of 100 ms */
+    lidar_set_timing_budget_us(100000); /* Timing measurement budget of 100 ms */
 
     /* Initialize range outer offsets */
     outer_offset = lidar_read_16bit_cmd(0x0022);
     lidar_write_16bit_cmd(0x001e, outer_offset * 4);
-    __builtin_nop();
 }

@@ -164,3 +164,42 @@ void lidar_write_16bit_cmd(uint16_t addr, uint16_t data)
     I2C2CONbits.PEN = 1; /* Stop */
     while(I2C2CONbits.PEN);
 }
+
+void lidar_write_32bit_cmd(uint16_t addr, uint32_t data)
+{
+    IFS3bits.MI2C2IF = 0;
+    I2C2CONbits.SEN = 1; /* Start bit */
+    while(I2C2CONbits.SEN);
+
+    IFS3bits.MI2C2IF = 0;
+    I2C2TRN = LIDAR_ADDR | LIDAR_WRITE; /* Address slave for writing */
+    while(!IFS3bits.MI2C2IF);
+
+    IFS3bits.MI2C2IF = 0;
+    I2C2TRN = (char) (addr >> 8); /* Upper address */
+    while(!IFS3bits.MI2C2IF);
+
+    IFS3bits.MI2C2IF = 0;
+    I2C2TRN = (char) addr; /* Lower address */
+    while(!IFS3bits.MI2C2IF);
+
+    IFS3bits.MI2C2IF = 0;
+    I2C2TRN = (char) (data >> 24); /* Data upper */
+    while(!IFS3bits.MI2C2IF);
+
+    IFS3bits.MI2C2IF = 0;
+    I2C2TRN = (char) (data >> 16); /* Data middle upper */
+    while(!IFS3bits.MI2C2IF);
+
+    IFS3bits.MI2C2IF = 0;
+    I2C2TRN = (char) (data >> 8); /* Data middle lower */
+    while(!IFS3bits.MI2C2IF);
+
+    IFS3bits.MI2C2IF = 0;
+    I2C2TRN = (char) data; /* Data lower */
+    while(!IFS3bits.MI2C2IF);
+
+    IFS3bits.MI2C2IF = 0;
+    I2C2CONbits.PEN = 1; /* Stop */
+    while(I2C2CONbits.PEN);
+}
