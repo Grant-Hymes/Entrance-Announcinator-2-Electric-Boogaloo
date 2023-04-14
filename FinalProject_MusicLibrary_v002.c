@@ -9,16 +9,29 @@
 #include "xc.h"
 #include <stdlib.h>
 
+/*
+ * Things to have in higher level form:
+ * 
+ * Allowing input of "C3" instead of "C, 3" for the set note
+ * Making it easier to notate the length of each note so that it doesn't have to be manually done
+ * Test the possibility of adding a harmony using a second speaker/buzzer
+ *      This should be possible by calculating off the PRx value for the main melody
+ *      but would just need math from that, other aspects using the timer should be
+ *      pretty much the same as the main melody
+ */
+
 // cycles = 1 / freq / Tcy
 
 // Octave 1 cycles, assuming Fcy = 16MHz
 static unsigned long int note_cycles[] = {489297, 461760, 435849, 411417, 388350, 
 366552, 345946, 326531, 308226, 290909, 274584, 259151};
 
-//Example
-int hold[] = {0, 1};
-char note[] = {'b', 'C'};
-int octave[] = {3, 3};
+// massive array to store song data
+int hold[100];
+char note[100];
+int octave[100];
+
+
 int current_step = 0;
 
 /**
@@ -67,6 +80,7 @@ void init_speaker(void) {
     OC1R = 0;
     OC1RS = 0;
     
+    // T5 is being used to control the music timing
     T5CON = 0;
     TMR5 = 0;
     IFS1bits.T5IF = 0;
@@ -137,7 +151,7 @@ void set_tempo(int tempo) {
 }
 
 void set_note(char note, int octave) {
-    if(note == ' ') {
+    if(note == ' ') { // Sets a silent note by setting a 0% duty cycle
         OC1RS = 0;
         return;
     }
@@ -155,6 +169,17 @@ void set_note(char note, int octave) {
     OC1RS = pr3 / 2;
 }
 
+// Copies array sent from main to be used here
+void set_song(int lhold[], char lnote[], int loctave[],int size) {
+    int i = 0;
+    for(i = 0; i < size; i++) {
+        hold[i] = lhold[i];
+        note[i] = lnote[i];
+        octave[i] = loctave[i];
+    }
+     
+}
+
 /**
  * For each step, set the correct note if the previous note is not still held.
  * @param steps Piece length divided by steps per minute
@@ -167,6 +192,7 @@ int play_music(int steps, int tempo) {
     T5CONbits.TON = 1;
     while(current_step < steps) {
         while(_T5IF == 0);
+        _T5IF = 0;
         if(hold[current_step] == 0) 
             set_note(note[current_step], octave[current_step]);
         current_step++;
