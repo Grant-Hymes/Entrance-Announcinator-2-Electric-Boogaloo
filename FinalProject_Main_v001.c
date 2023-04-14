@@ -6,7 +6,8 @@
  */
 #include "xc.h"
 #include "FinalProject_LEDLibrary.h"
-#include "FinalProject_BuzzerLibrary.h"
+#include "FinalProject_LIDARLibrary.h"
+#include "FinalProject_MusicLibrary.h"
 
 void setup(void);
 int main(void);
