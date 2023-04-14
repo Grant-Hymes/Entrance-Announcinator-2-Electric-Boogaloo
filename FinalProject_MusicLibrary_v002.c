@@ -45,10 +45,10 @@ int calculate_PRx (long int cycles, int prescaler) {
 }
 
 void init_speaker(void) {
-    TRISBbits.TRISB6 = 0;
+    TRISBbits.TRISB8 = 0;
     
     __builtin_write_OSCCONL(OSCCON & 0xBF);
-    RPOR3bits.RP6R = 18;
+    RPOR4bits.RP8R = 18;
     __builtin_write_OSCCONL(OSCCON | 0x40);
     
     OC1CON = 0;
@@ -61,8 +61,8 @@ void init_speaker(void) {
     PR3 = 39999;
     
     T3CONbits.TON = 1;
-    OC1R = 19999;
-    OC1RS = 19999;
+    OC1R = 0;
+    OC1RS = 0;
     
     T5CON = 0;
     TMR5 = 0;
@@ -149,7 +149,6 @@ void set_note(char note, int octave) {
     PR3 = pr3;
     
     T3CONbits.TON = 1;
-    OC1R = pr3 / 2;
     OC1RS = pr3 / 2;
 }
 

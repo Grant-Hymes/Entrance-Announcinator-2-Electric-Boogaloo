@@ -21,8 +21,9 @@ extern "C" {
 //    static int remainder;
     
     int play_music(int steps, int tempo);
-    void play_note();
+    void set_note(char note, int octave);
     void init_tempo(int tempo);
+    void init_speaker(void);
 #ifdef	__cplusplus
 }
 #endif
