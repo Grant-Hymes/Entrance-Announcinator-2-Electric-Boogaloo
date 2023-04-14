@@ -15,15 +15,18 @@ enum {
     LIDAR_READ = 1,
 };
 
-/* FinalProject_LIDARIOLibrary_v001 */
-char lidar_read_cmd(uint16_t addr);
-void lidar_write_cmd(uint16_t addr, char data);
+/* FinalProject_LIDARIO_v001 */
+char lidar_read_8bit_cmd(uint16_t addr);
+uint16_t lidar_read_16bit_cmd(uint16_t addr);
+void lidar_write_8bit_cmd(uint16_t addr, char data);
+void lidar_write_16bit_cmd(uint16_t addr, uint16_t data);
 
+/* FinalProject_LIDAR_v001 */
 void lidar_init(void);
     
 #ifdef	__cplusplus
 }
 #endif /* __cplusplus */
 
-#endif	/* FINALPROJECT_ASMLIBRARY_H */
+#endif	/* FINALPROJECT_LIDARLIBRARY_H */
 
