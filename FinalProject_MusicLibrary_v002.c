@@ -9,6 +9,17 @@
 #include "xc.h"
 #include <stdlib.h>
 
+/*
+ * Things to have in higher level form:
+ * 
+ * Allowing input of "C3" instead of "C, 3" for the set note
+ * Making it easier to notate the length of each note so that it doesn't have to be manually done
+ * Test the possibility of adding a harmony using a second speaker/buzzer
+ *      This should be possible by calculating off the PRx value for the main melody
+ *      but would just need math from that, other aspects using the timer should be
+ *      pretty much the same as the main melody
+ */
+
 // cycles = 1 / freq / Tcy
 
 // Octave 1 cycles, assuming Fcy = 16MHz
@@ -69,6 +80,7 @@ void init_speaker(void) {
     OC1R = 0;
     OC1RS = 0;
     
+    // T5 is being used to control the music timing
     T5CON = 0;
     TMR5 = 0;
     IFS1bits.T5IF = 0;
@@ -139,7 +151,7 @@ void set_tempo(int tempo) {
 }
 
 void set_note(char note, int octave) {
-    if(note == ' ') {
+    if(note == ' ') { // Sets a silent note by setting a 0% duty cycle
         OC1RS = 0;
         return;
     }
@@ -157,6 +169,7 @@ void set_note(char note, int octave) {
     OC1RS = pr3 / 2;
 }
 
+// Copies array sent from main to be used here
 void set_song(int lhold[], char lnote[], int loctave[],int size) {
     int i = 0;
     for(i = 0; i < size; i++) {
