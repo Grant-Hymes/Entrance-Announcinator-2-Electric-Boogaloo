@@ -114,7 +114,7 @@ void initButtons(void) {
     _INT2IF = 0;
     _INT1IE = 1; // interrupt enable
     _INT2IE = 1;
-    _INT2IP = 7;
+    _INT2IP = 7; // self destruct has interrupt priority
 }
 
 // mode button
