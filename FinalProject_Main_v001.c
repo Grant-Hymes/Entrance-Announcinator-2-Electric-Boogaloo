@@ -9,9 +9,6 @@
 #include "FinalProject_LIDARLibrary.h"
 #include "FinalProject_MusicLibrary.h"
 
-void setup(void);
-int main(void);
-
 // CW1: FLASH CONFIGURATION WORD 1 (see PIC24 Family Reference Manual 24.1)
 #pragma config ICS = PGx1          // Comm Channel Select (Emulator EMUC1/EMUD1 pins are shared with PGC1/PGD1)
 #pragma config FWDTEN = OFF        // Watchdog Timer Enable (Watchdog Timer is disabled)
@@ -28,14 +25,20 @@ int main(void);
                                        // Fail-Safe Clock Monitor is enabled)
 #pragma config FNOSC = FRCPLL      // Oscillator Select (Fast RC Oscillator with PLL module (FRCPLL))
 
+void setup(void);
+void initButtons(void);
+
 enum mode {
     startup = 0,
     ready = 1,
     armed = 2,
-    tripped = 3,    
+    tripped = 3,
+    boom = 4,
 };
 
 enum mode curMode;
+int setRange = 0; // range the sensor is calibrated to be at default
+int curRange = 0; // current range being measured by the sensor
 
 void setup(void)
 {
@@ -49,14 +52,29 @@ void setup(void)
     writeColor(255,80,0);
 }
 
-int main(void) {
+int main() {
     setup();    
-    initButtons();   
+    initButtons();
+    init_speaker();
     
+    // only for testing
     curMode = ready;
+    writeColor(0,0,255);
     
     while(1){
-                    
+       
+        
+        
+    if (abs(setRange - curRange) > 20) {
+        curMode = tripped;
+        writeColor(75,37,96);
+        set_note('C',3);
+        // play DEI theme
+    }   
+        
+        
+        
+        
     }
     
     return 0;
@@ -91,6 +109,9 @@ void __attribute__((__interrupt__,__auto_psv__)) _INT1Interrupt(void) {
    if (curMode == ready) {
        curMode = armed;
        writeColor(255,0,0);
+       set_note('C',3);
+       
+       // setRange = sensordata(); 
    } 
 }
 
@@ -98,9 +119,11 @@ void __attribute__((__interrupt__,__auto_psv__)) _INT1Interrupt(void) {
 void __attribute__((__interrupt__,__auto_psv__)) _INT2Interrupt(void) {
     _INT2IF = 0;
     
-    
-    // do whatever after self destruct
+    curMode = boom;
+    set_note(' ',3);
+ 
     writeColor(255,255,0);
     
-    
+    // play perry theme
+    // potential animation light ??
 }

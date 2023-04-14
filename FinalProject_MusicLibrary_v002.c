@@ -12,7 +12,7 @@
 // cycles = 1 / freq / Tcy
 
 // Octave 1 cycles, assuming Fcy = 16MHz
-static unsigned long int note_cycles[] {489297, 461760, 435849, 411417, 388350, 
+static unsigned long int note_cycles[] = {489297, 461760, 435849, 411417, 388350, 
 366552, 345946, 326531, 308226, 290909, 274584, 259151};
 
 //Example
@@ -25,7 +25,7 @@ int current_step = 0;
  * delays [ms] milliseconds.
  * @param ms milliseconds to delay
  */
-void delay_ms(unsigned int ms) {
+void delay_ms2(unsigned int ms) {
     while(ms-- > 0) {
         asm("repeat #15998");
         asm("nop");
@@ -41,14 +41,17 @@ int calculate_prescaler(long int cycles) {
 }
 
 int calculate_PRx (long int cycles, int prescaler) {
-    return (cycles / prescaler) -1;
+    if (prescaler == 0) return (cycles / 1) -1;
+    if (prescaler == 1) return (cycles / 8) -1;
+    if (prescaler == 2) return (cycles / 64) -1;
+    return (cycles / 256) -1;
 }
 
 void init_speaker(void) {
-    TRISBbits.TRISB6 = 0;
+    TRISBbits.TRISB8 = 0;
     
     __builtin_write_OSCCONL(OSCCON & 0xBF);
-    RPOR3bits.RP6R = 18;
+    RPOR4bits.RP8R = 18;
     __builtin_write_OSCCONL(OSCCON | 0x40);
     
     OC1CON = 0;
@@ -61,8 +64,8 @@ void init_speaker(void) {
     PR3 = 39999;
     
     T3CONbits.TON = 1;
-    OC1R = 19999;
-    OC1RS = 19999;
+    OC1R = 0;
+    OC1RS = 0;
     
     T5CON = 0;
     TMR5 = 0;
@@ -79,18 +82,18 @@ void init_speaker(void) {
  * @return An index for [note_cycles] or -1 if not found.
  */
 int note_char_to_int(char note) {
-    if(note == "C") return 0;
-    else if(note == "d") return 1;
-    else if(note == "D") return 2;
-    else if(note == "e") return 3;
-    else if(note == "E") return 4;
-    else if(note == "F") return 5;
-    else if(note == "g") return 6;
-    else if(note == "G") return 7;
-    else if(note == "a") return 8;
-    else if(note == "A") return 9;
-    else if(note == "b") return 10;
-    else if(note == "B") return 11;
+    if(note == 'C') return 0;
+    else if(note == 'd') return 1;
+    else if(note == 'D') return 2;
+    else if(note == 'e') return 3;
+    else if(note == 'E') return 4;
+    else if(note == 'F') return 5;
+    else if(note == 'g') return 6;
+    else if(note == 'G') return 7;
+    else if(note == 'a') return 8;
+    else if(note == 'A') return 9;
+    else if(note == 'b') return 10;
+    else if(note == 'B') return 11;
     else return -1;
 }
 
@@ -121,8 +124,8 @@ void set_tempo(int tempo) {
     T5CON = 0;
     
     unsigned long int cycles = bpm_to_cycles(tempo);
-    int pr5 = calculate_PRx(cycles);
-    int prescaler = calculate_prescaler(cycles, pr5);
+    int prescaler = calculate_prescaler(cycles);
+    int pr5 = calculate_PRx(cycles, prescaler);
     
     IFS1bits.T5IF = 0;
     T5CONbits.TCKPS = prescaler;
@@ -134,13 +137,14 @@ void set_tempo(int tempo) {
 }
 
 void set_note(char note, int octave) {
-    if(note == " ") {
+    if(note == ' ') {
         OC1RS = 0;
         return;
     }
     long int cycles = note_to_cycles(note, octave);
-    int pr3 = calculate_PRx(cycles);
-    int prescaler = calculate_prescaler(cycles, pr3);
+    int prescaler = calculate_prescaler(cycles);
+    int pr3 = calculate_PRx(cycles, prescaler);
+    
     
     T3CON = 0;
     T3CONbits.TCKPS = prescaler;
@@ -148,7 +152,6 @@ void set_note(char note, int octave) {
     PR3 = pr3;
     
     T3CONbits.TON = 1;
-    OC1R = pr3 / 2;
     OC1RS = pr3 / 2;
 }
 
