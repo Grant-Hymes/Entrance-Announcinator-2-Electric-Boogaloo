@@ -37,15 +37,20 @@ enum mode {
     boom = 4,
 };
 
+struct Song {
+    int tempo;
+    int size;
+    char notes[1024][3];
+};
+
  // Doof Theme
- int Dhold[] =  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
- char Dnote[] =  {'C', 'A', 'C', 'E', 'C', 'E', 'G', 'G', 'G', 'G', ' '};
- int Doctave[] = {3, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3};
+struct Song doof = {120, 11, 
+{"1C3", "1A2", "1C3", "1E3", "1C3", "1E3", "1G3", "1G3", "1G3", "1G3", "1 3"}};
  
  // Perry Theme
- int Phold[] =   {0,0,0,0,0,1,0,0,1,0,0,0,0,1,0,1,0,1,0,0,1,1,0 };
- char Pnote[] =  {'D','D','E','D','F','F','G','D','D','D','E','D','F','F','G','G','A','A','a','A','A','A', ' '};
- int Poctave[] = {2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,3,3,3,3,3,3,3};
+struct Song perry = {165, 16, 
+{"1D2", "1D2", "1E2", "1D2", "2F2", "1G2", "2D2", "1D2", "1E2", "1D2", "2F2", 
+        "2G2", "2A3", "1a3", "3A3", "1 3"}};
 
 enum mode curMode;
 int setRange = 0; // range the sensor is calibrated to be at default
@@ -82,8 +87,7 @@ int main() {
         writeColor(75,37,96);
         
         // plays the DEI theme
-        set_song(Dhold,Dnote,Doctave,11);
-        play_music(11, 120);
+        play_music(doof);
             
         }    
         
@@ -125,9 +129,8 @@ void __attribute__((__interrupt__,__auto_psv__)) _INT1Interrupt(void) {
    if (curMode == ready) {
        curMode = armed;
        writeColor(255,0,0);
-       set_song(Dhold,Dnote,Doctave,11);
        
-       play_music(11, 120);
+       play_music(doof);
        
        // setRange = sensordata(); 
    } 
@@ -142,8 +145,7 @@ void __attribute__((__interrupt__,__auto_psv__)) _INT2Interrupt(void) {
     writeColor(255,255,0); // changes color to yellow?
     
     // plays the perry theme
-    set_song(Phold,Pnote,Poctave,23);
-    play_music(23,165);
+    play_music(perry);
 
     // potential animation light ??
 }

@@ -14,6 +14,9 @@
  * 
  * Allowing input of "C3" instead of "C, 3" for the set note
  * Making it easier to notate the length of each note so that it doesn't have to be manually done
+ * 
+ * + Input is "1C3" with the form {'beats to hold', 'pitch', 'octave'}
+ * 
  * Test the possibility of adding a harmony using a second speaker/buzzer
  *      This should be possible by calculating off the PRx value for the main melody
  *      but would just need math from that, other aspects using the timer should be
@@ -21,18 +24,16 @@
  */
 
 // cycles = 1 / freq / Tcy
-
 // Octave 1 cycles, assuming Fcy = 16MHz
-static unsigned long int note_cycles[] = {489297, 461760, 435849, 411417, 388350, 
-366552, 345946, 326531, 308226, 290909, 274584, 259151};
-
-// massive array to store song data
-int hold[100];
-char note[100];
-int octave[100];
 
 
-int current_step = 0;
+
+struct Song {
+        int tempo;
+        int size;
+        char notes[1024][3];
+    };
+
 
 /**
  * delays [ms] milliseconds.
@@ -91,37 +92,35 @@ void init_speaker(void) {
 }
 
 /**
- * Converts a note from char representation to the [note_cycles] array index.
+ * Converts a note from char representation to the period of the note in cycles.
  * @param note The char representation of a note.
- * @return An index for [note_cycles] or -1 if not found.
+ * @return The period of the note in cycles or -1 if not found.
  */
-int note_char_to_int(char note) {
-    if(note == 'C') return 0;
-    else if(note == 'd') return 1;
-    else if(note == 'D') return 2;
-    else if(note == 'e') return 3;
-    else if(note == 'E') return 4;
-    else if(note == 'F') return 5;
-    else if(note == 'g') return 6;
-    else if(note == 'G') return 7;
-    else if(note == 'a') return 8;
-    else if(note == 'A') return 9;
-    else if(note == 'b') return 10;
-    else if(note == 'B') return 11;
+long int note_char_to_int(char note) {
+    if(note == 'C') return 489297;
+    else if(note == 'd') return 461760;
+    else if(note == 'D') return 435849;
+    else if(note == 'e') return 411417;
+    else if(note == 'E') return 388350;
+    else if(note == 'F') return 366552;
+    else if(note == 'g') return 345946;
+    else if(note == 'G') return 326531;
+    else if(note == 'a') return 308226;
+    else if(note == 'A') return 290909;
+    else if(note == 'b') return 274584;
+    else if(note == 'B') return 259151;
     else return -1;
 }
 
 /**
  * Converts a note to its period in 16MHz clock cycles.
- * @param octave Octave numbber.
+ * @param octave Octave number.
  * @param note char representation of a note 
  * @return The number of clock cycles in the period of the note.
  */
 long int note_to_cycles(char note, int octave) {
-    int n = note_char_to_int(note);
-    if(n == -1) return n;
-    
-    long int cycles = note_cycles[n];
+    long int cycles = note_char_to_int(note);
+    if(cycles == -1) return 0;
     for(int i = 1; i < octave; i++) {
         cycles /= 2;
     }
@@ -169,33 +168,21 @@ void set_note(char note, int octave) {
     OC1RS = pr3 / 2;
 }
 
-// Copies array sent from main to be used here
-void set_song(int lhold[], char lnote[], int loctave[],int size) {
-    int i = 0;
-    for(i = 0; i < size; i++) {
-        hold[i] = lhold[i];
-        note[i] = lnote[i];
-        octave[i] = loctave[i];
-    }
-     
-}
-
 /**
  * For each step, set the correct note if the previous note is not still held.
  * @param steps Piece length divided by steps per minute
  * @param tempo steps per minute
  * @return 0 if successful
  */
-int play_music(int steps, int tempo) {
-    current_step = 0;
-    set_tempo(tempo);
+int play_music(struct Song s) {
+    set_tempo(s.tempo);
     T5CONbits.TON = 1;
-    while(current_step < steps) {
-        while(_T5IF == 0);
-        _T5IF = 0;
-        if(hold[current_step] == 0) 
-            set_note(note[current_step], octave[current_step]);
-        current_step++;
+    for(int i = 0; i < s.size; i++) {
+        set_note(s.notes[i][1], s.notes[i][2]);
+        for(int j = 0; j < s.notes[i][0]; j++) {
+            while(_T5IF == 0);
+            _T5IF = 0;
+        }
     }
     return 0;
 }
