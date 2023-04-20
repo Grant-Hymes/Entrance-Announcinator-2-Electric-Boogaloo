@@ -40,7 +40,7 @@ enum mode {
 struct Song {
     int tempo;
     int size;
-    char notes[1024][3];
+    char notes[128][3];
 };
 
  // Doof Theme
@@ -72,7 +72,7 @@ int main() {
     setup();    
     initButtons();
     init_speaker();
-    lidar_init();
+    //lidar_init();
     
     // only for testing
     curMode = ready;
@@ -130,7 +130,7 @@ void __attribute__((__interrupt__,__auto_psv__)) _INT1Interrupt(void) {
        curMode = armed;
        writeColor(255,0,0);
        
-       play_music(doof);
+        play_music(doof);
        
        // setRange = sensordata(); 
    } 

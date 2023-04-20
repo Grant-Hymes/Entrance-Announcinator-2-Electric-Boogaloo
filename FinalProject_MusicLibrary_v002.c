@@ -31,7 +31,7 @@
 struct Song {
         int tempo;
         int size;
-        char notes[1024][3];
+        char notes[128][3];
     };
 
 
