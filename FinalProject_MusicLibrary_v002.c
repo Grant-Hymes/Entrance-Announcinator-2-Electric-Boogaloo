@@ -112,6 +112,15 @@ long int note_char_to_int(char note) {
     else return -1;
 }
 
+int length_char_to_int(char length) {
+    if (length>='0' && length<='9')
+        return length - '0';
+    if (length>='a' && length<='f')
+        return length + 10 - 'a';
+    if (length>='A' && length<='F')
+        return length + 10 - 'A';
+    return 0;
+}
 /**
  * Converts a note to its period in 16MHz clock cycles.
  * @param octave Octave number.
@@ -178,8 +187,8 @@ int play_music(struct Song s) {
     set_tempo(s.tempo);
     T5CONbits.TON = 1;
     for(int i = 0; i < s.size; i++) {
-        set_note(s.notes[i][1], s.notes[i][2]);
-        for(int j = 0; j < s.notes[i][0]; j++) {
+        set_note(s.notes[i][1], length_char_to_int(s.notes[i][2]));
+        for(int j = 0; j < (s.notes[i][0] - '0'); j++) {
             while(_T5IF == 0);
             _T5IF = 0;
         }
