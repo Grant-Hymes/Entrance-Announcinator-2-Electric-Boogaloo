@@ -8,6 +8,7 @@
 #include "FinalProject_LEDLibrary.h"
 #include "FinalProject_LIDARLibrary.h"
 #include "FinalProject_MusicLibrary.h"
+#include "FinalProject_ButtonLibrary.h"
 
 // CW1: FLASH CONFIGURATION WORD 1 (see PIC24 Family Reference Manual 24.1)
 #pragma config ICS = PGx1          // Comm Channel Select (Emulator EMUC1/EMUD1 pins are shared with PGC1/PGD1)
@@ -67,16 +68,14 @@ int main() {
     setup();    
     initButtons();
     init_speaker();
-    lidar_init();
+    // lidar_init();
     
     // only for testing
     curMode = ready;
     writeColor(0,0,255);
     
     while(1){
-       
-        
-        
+              
      if (abs(setRange - curRange) > 20) {
         curMode = tripped;
         writeColor(75,37,96);
@@ -85,38 +84,11 @@ int main() {
         set_song(Dhold,Dnote,Doctave,11);
         play_music(11, 120);
             
-        }    
-        
-        
-        
-        
+        }           
     }
     
     return 0;
 }
-
-void initButtons(void) {
-    TRISBbits.TRISB7 = 1; // enable pin input on RB7
-    TRISBbits.TRISB6 = 1; // enable pin input on RP6
-    CNPU2bits.CN23PUE = 1; // set RP7 pull up resistor
-    CNPU2bits.CN24PUE = 1; // set RP6 pull up resistor
-    
-    __builtin_write_OSCCONL(OSCCON & 0xbf); // unlock PPS
-     
-    RPINR0bits.INT1R = 7;  // Use Pin RP7 for External Interrupt 1
-    RPINR1bits.INT2R = 6;  // Use Pin RP6 for External Interrupt 2 
-     
-    __builtin_write_OSCCONL(OSCCON | 0x40); // lock   PPS
-    
-    _INT1EP = 1; // negative edge
-    _INT2EP = 1; // negative edge
-    _INT1IF = 0; // reset interrupt flag
-    _INT2IF = 0;
-    _INT1IE = 1; // interrupt enable
-    _INT2IE = 1;
-    _INT2IP = 7; // self destruct has interrupt priority
-}
-
 // mode button
 void __attribute__((__interrupt__,__auto_psv__)) _INT1Interrupt(void) {
    _INT1IF = 0;
@@ -137,13 +109,18 @@ void __attribute__((__interrupt__,__auto_psv__)) _INT1Interrupt(void) {
 void __attribute__((__interrupt__,__auto_psv__)) _INT2Interrupt(void) {
     _INT2IF = 0;
     
-    curMode = boom; // explosion mode
-   
-    writeColor(255,255,0); // changes color to yellow?
+    if (curMode != boom) {
     
-    // plays the perry theme
-    set_song(Phold,Pnote,Poctave,23);
-    play_music(23,165);
+        curMode = boom; // explosion mode
+   
+        writeColor(255,255,0); // changes color to yellow?
+    
+        // plays the perry theme
+        set_song(Phold,Pnote,Poctave,23);
+        play_music(23,165);
 
-    // potential animation light ??
+        // potential animation light ??
+    }
 }
+    
+    
