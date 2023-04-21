@@ -27,7 +27,6 @@
 #pragma config FNOSC = FRCPLL      // Oscillator Select (Fast RC Oscillator with PLL module (FRCPLL))
 
 void setup(void);
-void initButtons(void);
 
 // various modes for operation
 enum mode {
@@ -73,54 +72,70 @@ int main() {
     setup();    
     initButtons();
     init_speaker();
+    initMotionSensor();
     // lidar_init();
     
     // only for testing
     curMode = ready;
     writeColor(0,0,255);
     
-    while(1){
-              
-     if (abs(setRange - curRange) > 20) {
-        curMode = tripped;
-        writeColor(75,37,96);
-        
-        // plays the DEI theme
-        play_music(doof);
-            
-        }           
-    }
+    while(1);
     
     return 0;
 }
+
 // mode button
 void __attribute__((__interrupt__,__auto_psv__)) _INT1Interrupt(void) {
    _INT1IF = 0;
    
-   // change mode
+   // if trap is ready to be armed, it is now armed
    if (curMode == ready) {
        curMode = armed;
        writeColor(255,0,0);
-       
-        play_music(doof);
-       
-       // setRange = sensordata(); 
    } 
+   
+   // if the trap is armed, it is now disarmed
+   else if (curMode == armed) {
+       curMode = ready;
+       writeColor(0,0,255);
+   }
+   
+   // if trap was already tripped, it is armed again
+   else if (curMode == tripped) {
+       curMode = armed;
+       writeColor(255,0,0);
+   }
+   
 }
 
 // self destruct button
 void __attribute__((__interrupt__,__auto_psv__)) _INT2Interrupt(void) {
     _INT2IF = 0;
     
-    curMode = boom;
+
     
     if (curMode != boom) {
     
+        writeColor(255,255,0);
+        
+        curMode = boom;
+        
     // plays the perry theme
     play_music(perry);
 
         // potential animation light ??
     }
+}
+
+void __attribute__((__interrupt__,__auto_psv__)) _IC1Interrupt (void) {
+    _IC1IF = 0;
+    
+    if (curMode == armed) {
+        curMode = tripped;
+        play_music(doof);
+        writeColor(255,0,255);
+    }
+    
 }
     
     
