@@ -112,6 +112,8 @@ void __attribute__((__interrupt__,__auto_psv__)) _INT1Interrupt(void) {
 void __attribute__((__interrupt__,__auto_psv__)) _INT2Interrupt(void) {
     _INT2IF = 0;
     
+    curMode = boom;
+    
     if (curMode != boom) {
     
     // plays the perry theme
