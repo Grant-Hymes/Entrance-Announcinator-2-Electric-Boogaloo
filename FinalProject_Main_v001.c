@@ -9,6 +9,7 @@
 #include "FinalProject_LIDARLibrary.h"
 #include "FinalProject_MusicLibrary.h"
 #include "FinalProject_ButtonLibrary.h"
+#include "FinalProject_MotionSensorLibrary.h"
 
 // CW1: FLASH CONFIGURATION WORD 1 (see PIC24 Family Reference Manual 24.1)
 #pragma config ICS = PGx1          // Comm Channel Select (Emulator EMUC1/EMUD1 pins are shared with PGC1/PGD1)
