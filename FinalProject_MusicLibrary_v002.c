@@ -61,12 +61,35 @@ int calculate_PRx (long int cycles, int prescaler) {
     return (cycles / 256) -1;
 }
 
-void init_speaker(void) {
-    TRISBbits.TRISB8 = 0;
+/**
+ * initializes output compare 1, which is used to generate a waveform to be sent to a speaker
+ * @param pin selects the pin that the speaker / output compare 1 will be mapped to works with pins 6 through 9
+ */
+void init_speaker(int pin) {
     
+    // ensures pin is within 6 to 9
+    if (pin < 6 || pin > 9) {
+        return;
+    }
+    
+    // assigns output compare 1 to the given pin
     __builtin_write_OSCCONL(OSCCON & 0xBF);
-    RPOR4bits.RP8R = 18;
+    if (pin == 6) {
+        TRISBbits.TRISB6 = 0;
+        RPOR3bits.RP6R = 18;
+    } else if (pin == 7) {
+        TRISBbits.TRISB7 = 0;
+        RPOR3bits.RP7R = 18;
+    } else if (pin == 8) {
+        TRISBbits.TRISB8 = 0;
+        RPOR4bits.RP8R = 18;
+    } else if (pin == 9) {
+        TRISBbits.TRISB9 = 0;
+        RPOR4bits.RP9R = 18;
+    }
     __builtin_write_OSCCONL(OSCCON | 0x40);
+    
+    // rest of the function sets the output compare 1 control registers
     
     OC1CON = 0;
     OC1CONbits.OCTSEL = 0b1;
@@ -157,7 +180,11 @@ void set_tempo(int tempo) {
     //T5CONbits.TON = 1;
     IEC1bits.T5IE = 0;
 }
-
+/**
+ * 
+ * @param note 
+ * @param octave
+ */
 void set_note(char note, int octave) {
     if(note == ' ') { // Sets a silent note by setting a 0% duty cycle
         OC1RS = 0;

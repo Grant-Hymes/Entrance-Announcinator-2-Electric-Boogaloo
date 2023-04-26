@@ -16,7 +16,7 @@ extern "C" {
     int play_music(struct Song s);
     void set_note(char note, int octave);
     void init_tempo(int tempo);
-    void init_speaker(void);
+    void init_speaker(int pin);
 #ifdef	__cplusplus
 }
 #endif

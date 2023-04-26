@@ -12,7 +12,7 @@
 extern "C" {
 #endif
 
-    void initMotionSensor();
+    void initMotionSensor(int pin);
 
 
 #ifdef	__cplusplus

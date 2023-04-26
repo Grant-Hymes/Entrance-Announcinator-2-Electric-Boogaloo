@@ -71,9 +71,9 @@ void setup(void)
 
 int main() {
     setup();    
-    initButtons();
-    init_speaker();
-    initMotionSensor();
+    initButtons(7,6);
+    init_speaker(8);
+    initMotionSensor(9);
     // lidar_init();
     
     // only for testing

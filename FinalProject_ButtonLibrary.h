@@ -12,7 +12,7 @@
 extern "C" {
 #endif
 
-void initButtons(void);
+void initButtons(int pin1, int pin2);
 
 
 #ifdef	__cplusplus
