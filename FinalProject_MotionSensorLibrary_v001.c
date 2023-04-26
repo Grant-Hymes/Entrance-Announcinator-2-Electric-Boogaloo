@@ -11,10 +11,12 @@
 
 void initMotionSensor(int pin){
       
+    // ensures only appropriate pins are assigned
     if (pin > 9 || pin < 6) {
         return;
     }
     
+    // sets the given pin to output mode
     if (pin == 6) {
         TRISBbits.TRISB6 = 1;
     } else if (pin == 7) {
