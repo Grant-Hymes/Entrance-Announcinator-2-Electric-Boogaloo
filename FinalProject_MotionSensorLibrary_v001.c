@@ -1,6 +1,7 @@
 #include "xc.h"
 
 
+
 /**
  * The function initializes a PIR motion sensor, assuming one is attached to a chosen pin
  * The function sets up output compare 1, using timer 2, and assigns it to the pin
@@ -9,8 +10,12 @@
  * @param pin the pin the motion sensor/ output compare will be mapped to
  */
 
+extern volatile int status;
+extern volatile int trippedTime;
+volatile int overflow = 0;
+
 void initMotionSensor(int pin){
-      
+        
     // ensures only appropriate pins are assigned
     if (pin > 9 || pin < 6) {
         return;
@@ -48,13 +53,32 @@ void initMotionSensor(int pin){
     PR2 = 62499;
     TMR2 = 0;
     
-    _T2IE = 0; // timer 2 interrupt enable
+    _T2IE = 1; // timer 2 interrupt enable
     _T2IF = 0; // timer 2 interrupt flag
    
     _IC1IE = 1; // enable input capture interrupt
     _IC1IF = 0; // reset input capture 1 interrupt flag
     
+    status = 0;
+    
     T2CONbits.TON = 1;
     
     }
 
+void __attribute__((__interrupt__,__auto_psv__)) _T2Interrupt (void) {
+    _T2IF = 0;
+    overflow++;
+    
+    } 
+void __attribute__((__interrupt__,__auto_psv__)) _IC1Interrupt (void) {
+    _IC1IF = 0;
+    
+    if(PORTBbits.RB9 == 0) {
+        return;
+    }
+    
+    trippedTime = overflow;
+   
+    status = 1;
+   
+}

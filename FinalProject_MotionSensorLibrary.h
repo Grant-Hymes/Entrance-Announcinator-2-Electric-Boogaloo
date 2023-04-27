@@ -11,6 +11,9 @@
 #ifdef	__cplusplus
 extern "C" {
 #endif
+    
+    volatile int status;
+    volatile int trippedTime;
 
     void initMotionSensor(int pin);
 
