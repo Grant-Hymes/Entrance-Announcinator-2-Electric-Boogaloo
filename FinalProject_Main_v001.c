@@ -44,6 +44,18 @@ struct Song {
     char notes[128][3];
 };
 
+/*
+ * How to input a song:
+ * 
+ * Tempo: Enter the value in beats per minute as an integer
+ * Size: Size indicates the number of notes in the melody
+ * Notes: Each element consists of a 3-character input, a.k.a. length 3 string
+ *        First character is a number that represents how many steps to play a note. When tempo is
+ *            set, a step of 1 would indicate a quarter note's value of length
+ *        Second character is the letter that indicates what letter note to play
+ *        Third character is the number that indicates which octave the note should be played in
+ */
+
  // Doof Theme
 struct Song doof = {120, 11, 
 {"1C3", "1A2", "1C3", "1E3", "1C3", "1E3", "1G3", "1G3", "1G3", "1G3", "1 3"}};

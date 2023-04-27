@@ -26,8 +26,6 @@
 // cycles = 1 / freq / Tcy
 // Octave 1 cycles, assuming Fcy = 16MHz
 
-
-
 struct Song {
         int tempo;
         int size;
@@ -54,6 +52,12 @@ int calculate_prescaler(long int cycles) {
     return 3;
 }
 
+/**
+ * Calculates the PRx needed to create the correct period, which is what sets the frequency
+ * @param cycles The length of the period in instruction cycles
+ * @param prescaler The prescaler mode
+ * @return 
+ */
 int calculate_PRx (long int cycles, int prescaler) {
     if (prescaler == 0) return (cycles / 1) -1;
     if (prescaler == 1) return (cycles / 8) -1;
@@ -62,7 +66,7 @@ int calculate_PRx (long int cycles, int prescaler) {
 }
 
 /**
- * initializes output compare 1, which is used to generate a waveform to be sent to a speaker
+ * Initializes output compare 1, which is used to generate a waveform to be sent to a speaker
  * @param pin selects the pin that the speaker / output compare 1 will be mapped to works with pins 6 through 9
  */
 void init_speaker(int pin) {
@@ -101,6 +105,7 @@ void init_speaker(int pin) {
     PR3 = 39999;
     
     T3CONbits.TON = 1;
+    // OC1R and OC1RS should be set to 0 so nothing is playing until the appropriate functions are called
     OC1R = 0;
     OC1RS = 0;
     
@@ -116,7 +121,8 @@ void init_speaker(int pin) {
 
 /**
  * Converts a note from char representation to the period of the note in cycles.
- * @param note The char representation of a note.
+ * @param note The char representation of a note. Sharps like C# are not directly represented; the equivalent
+ *             flat is used and is noted by a lowercase of the note, eg. D flat is written as d
  * @return The period of the note in cycles or -1 if not found.
  */
 long int note_char_to_int(char note) {
@@ -135,6 +141,12 @@ long int note_char_to_int(char note) {
     else return -1;
 }
 
+/**
+ * Converts a char representation of a number in hex into its integer value
+ * @param length char of what is to be converted. the letter values of hex are supported in either uppercase or lowercase
+ * @return int value representation of what length was. 0 is returned by default if the char length is not something
+ *         represented in hexadecimal
+ */
 int length_char_to_int(char length) {
     if (length>='0' && length<='9')
         return length - '0';
@@ -144,9 +156,10 @@ int length_char_to_int(char length) {
         return length + 10 - 'A';
     return 0;
 }
+
 /**
  * Converts a note to its period in 16MHz clock cycles.
- * @param octave Octave number.
+ * @param octave Octave number as an int.
  * @param note char representation of a note 
  * @return The number of clock cycles in the period of the note.
  */
@@ -159,12 +172,22 @@ long int note_to_cycles(char note, int octave) {
     return cycles;
 }
 
+/**
+ * Converts given value for tempo into number based on Tcy in 16 MHz cycles
+ * @param bpm int value representing the tempo in beats per minute
+ * @return the beats per minute in the number of instruction cycles
+ */
 unsigned long int bpm_to_cycles(int bpm) {
     return 960000000 / bpm;
 }
 
-// Min tempo = 58, Max tempo > 1,000,000
+/**
+ * Sets the tempo by changing the appropriate values for T5
+ * @param tempo int value representing the desired tempo in beats per minute
+ *        The smallest tempo possible is 58 bpm, largest is over 1,000,000 bpm
+ */
 void set_tempo(int tempo) {
+    // Min tempo = 58, Max tempo > 1,000,000
     IEC1bits.T5IE = 0;
     T5CON = 0;
     
@@ -180,10 +203,12 @@ void set_tempo(int tempo) {
     //T5CONbits.TON = 1;
     IEC1bits.T5IE = 0;
 }
+
 /**
- * 
- * @param note 
- * @param octave
+ * Calculates and changes the appropriate T3 values to adjust the frequency
+ * This will make the note continuously play; it will need to be called again with ' ' input
+ * @param note char representation of the note to be played
+ * @param octave int value representing the octave the given note should be
  */
 void set_note(char note, int octave) {
     if(note == ' ') { // Sets a silent note by setting a 0% duty cycle
@@ -206,8 +231,7 @@ void set_note(char note, int octave) {
 
 /**
  * For each step, set the correct note if the previous note is not still held.
- * @param steps Piece length divided by steps per minute
- * @param tempo steps per minute
+ * @param s a struct of type Song
  * @return 0 if successful
  */
 int play_music(struct Song s) {
@@ -221,4 +245,16 @@ int play_music(struct Song s) {
         }
     }
     return 0;
+}
+
+/**
+ * Plays a single note for a given number of seconds
+ * @param note Char array with first element representing the note, second element is the octave
+ * @param msec Int value for how many seconds to play the note for
+ */
+void play_note(char note[], int seconds) {
+    set_note(note[0], length_char_to_int(note[1]));
+    delay_ms2(1000 * seconds);
+    set_note(' ', 3);
+    
 }
