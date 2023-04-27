@@ -50,9 +50,11 @@ struct Song {
  * Tempo: Enter the value in beats per minute as an integer
  * Size: Size indicates the number of notes in the melody
  * Notes: Each element consists of a 3-character input, a.k.a. length 3 string
- *        First character is a number that represents how many steps to play a note. When tempo is
- *            set, a step of 1 would indicate a quarter note's value of length
- *        Second character is the letter that indicates what letter note to play
+ *        First character is a number that represents how many beats to hold a note. Because half
+ *            beats are not permitted, it is recommended to set your tempo so one beat is the
+ *            shortest note in the song. 
+ *        Second character is the letter that indicates what letter note to play. Natural notes
+ *            are represented by capital letters and flats are represented by lowercase letters.
  *        Third character is the number that indicates which octave the note should be played in
  */
 
