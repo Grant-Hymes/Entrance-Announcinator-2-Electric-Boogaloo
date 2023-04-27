@@ -57,8 +57,8 @@ struct Song {
  */
 
  // Doof Theme
-struct Song doof = {120, 11, 
-{"1C3", "1A2", "1C3", "1E3", "1C3", "1E3", "1G3", "1G3", "1G3", "1G3", "1 3"}};
+struct Song doof = {320, 11, 
+{"1C3", "1A2", "2C3", "1E3", "1C3", "2E3", "2G3", "1G3", "3G3", "9G3", "1 3"}};
  
  // Perry Theme
 struct Song perry = {165, 16, 
