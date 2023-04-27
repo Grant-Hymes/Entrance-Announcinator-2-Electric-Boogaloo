@@ -25,9 +25,15 @@ struct Song {
         int tempo;
         int size;
         char notes[128][3];
-    };
+};
 
-
+struct StereoSong {
+        int tempo;
+        int size[2];
+        char leftNotes[128][3];
+        char rightNotes[128][3];
+};
+        
 /**
  * delays [ms] milliseconds.
  * @param ms milliseconds to delay
@@ -113,6 +119,89 @@ void init_speaker(int pin) {
     TMR5 = 0;
     PR5 = 31249;
 }
+
+/**
+ * Initializes output compare 1 and 2, which are used to generate tw0 waveforms to be sent to a speaker
+ * @param leftPin selects the pin that the speaker / output compare 1 will be mapped to works with pins 6 through 9
+ * @param rightPin selects the pin that the speaker / output compare 2 will be mapped to works with pins 6 through 9
+ */
+void init_speaker_stereo(int leftPin, rightPin) {
+    
+    // ensures pins are within 6 to 9
+    if (leftPin < 6 || leftPin > 9 || rightPin < 6 || rightPin > 9 || leftPin == rightPin) {
+        return;
+    }
+    
+    // assigns output compare 1 to the given pin
+    __builtin_write_OSCCONL(OSCCON & 0xBF);
+    if (leftPin == 6) {
+        TRISBbits.TRISB6 = 0;
+        RPOR3bits.RP6R = 18;
+    } else if (leftPin == 7) {
+        TRISBbits.TRISB7 = 0;
+        RPOR3bits.RP7R = 18;
+    } else if (leftPin == 8) {
+        TRISBbits.TRISB8 = 0;
+        RPOR4bits.RP8R = 18;
+    } else if (leftPin == 9) {
+        TRISBbits.TRISB9 = 0;
+        RPOR4bits.RP9R = 18;
+    }   
+    // assigns output compare 2 to the given pin
+    if (rightPin == 6) {
+        TRISBbits.TRISB6 = 0;
+        RPOR3bits.RP6R = 19;
+    } else if (rightPin == 7) {
+        TRISBbits.TRISB7 = 0;
+        RPOR3bits.RP7R = 19;
+    } else if (rightPin == 8) {
+        TRISBbits.TRISB8 = 0;
+        RPOR4bits.RP8R = 19;
+    } else if (rightPin == 9) {
+        TRISBbits.TRISB9 = 0;
+        RPOR4bits.RP9R = 19;
+    }
+    __builtin_write_OSCCONL(OSCCON | 0x40);
+    
+    // rest of the function sets the output compare control registers
+    
+    OC1CON = 0;
+    OC1CONbits.OCTSEL = 0b1;
+    OC1CONbits.OCM = 0b110;
+        
+    OC2CON = 0;
+    OC2CONbits.OCTSEL = 0b1;
+    OC2CONbits.OCM = 0b110;
+    
+    T3CON = 0;
+    T3CONbits.TCKPS = 0b00;
+    TMR3 = 0;
+    PR3 = 39999;
+        
+    T4CON = 0;
+    T4CONbits.TCKPS = 0b00;
+    TMR4 = 0;
+    PR4 = 39999;
+    
+    T3CONbits.TON = 1;
+    T4CONbits.TON = 1;
+    // OCxR and OCxRS should be set to 0 so nothing is playing until the appropriate functions are called
+    OC1R = 0;
+    OC1RS = 0;
+    
+    OC2R = 0;
+    OC2RS = 0;
+    
+    // T5 is being used to control the music timing
+    T5CON = 0;
+    TMR5 = 0;
+    IFS1bits.T5IF = 0;
+    IEC1bits.T5IE = 0;
+    T5CONbits.TCKPS = 3;
+    TMR5 = 0;
+    PR5 = 31249;
+}
+
 
 /**
  * Converts a note from char representation to the period of the note in cycles.
@@ -224,6 +313,49 @@ void set_note(char note, int octave) {
     OC1RS = pr3 / 2;
 }
 
+void set_note_stereo(char note[], int octave[]) {
+    if(note[0] == ' ' && note[1] == ' ') { // Sets a silent note by setting a 0% duty cycle
+        OC1RS = 0;
+        OC2RS = 0;
+        return;
+    }
+    
+    long int leftCycles, rightCycles;
+    int t3PRE, t4PRE, pr3, pr4;
+        
+    if(note[0] == ' ') {
+        OC1RS = 0;
+    } else {
+        leftCycles = note_to_cycles(note[0], octave[0]);
+        t3PRE = calculate_prescaler(leftCycles);
+        pr3 = calculate_PRx(leftCycles, t3PRE);
+        
+        T3CON = 0;
+        T3CONbits.TCKPS = t3PRE;
+        TMR3 = 0;
+        PR3 = pr3;
+        
+        OC1RS = pr3 / 2;
+    }
+    if(note[1] == ' ') {
+        OC2RS = 0;
+    } else {
+        rightCycles = note_to_cycles(note[1], octave[1]);
+        t4PRE = calculate_prescaler(rightCycles);
+        pr4 = calculate_PRx(rightCycles, t4PRE);
+        
+        T4CON = 0;
+        T4CONbits.TCKPS = t4PRE;
+        TMR4 = 0;
+        PR4 = pr4;
+        
+        OC2RS = pr4 / 2;
+    }
+    
+    T3CONbits.TON = 1;
+    T4CONbits.TON = 1;
+}
+
 /**
  * For each step, set the correct note if the previous note is not still held.
  * @param s a struct of type Song
@@ -251,5 +383,14 @@ void play_note(char note[], int seconds) {
     set_note(note[0], length_char_to_int(note[1]));
     delay_ms2(1000 * seconds);
     set_note(' ', 3);
+    
+}
+
+void play_note_stereo(char note[], char octave[], int seconds) {
+    int iOct[] = {length_char_to_int(octave[0]), length_char_to_int(octave[1])};
+    set_note_stereo(note[], iOct[]);
+    delay_ms2(1000 * seconds);
+    char rest[] = {' ', ' '};
+    set_note(rest[], iOct[]);
     
 }
