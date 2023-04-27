@@ -83,18 +83,29 @@ void setup(void)
     writeColor(255,80,0);
 }
 
-int main(){
+int main() {
+     
     setup();    
     initButtons(7,6);
     init_speaker(8);
     initMotionSensor(9);
     // lidar_init();
     
-    // only for testing
     curMode = ready;
     writeColor(0,0,255);
     
-    while(1);
+    while(1) {
+        while(status == 0);
+        status = 0;
+       
+        if (curMode == armed) {
+            curMode = tripped;
+            play_music(doof);
+            writeColor(255,0,255);
+       }
+       
+           
+    }
     
     return 0;
 }
@@ -141,16 +152,3 @@ void __attribute__((__interrupt__,__auto_psv__)) _INT2Interrupt(void) {
         // potential animation light ??
     }
 }
-
-void __attribute__((__interrupt__,__auto_psv__)) _IC1Interrupt (void) {
-    _IC1IF = 0;
-    
-    if (curMode == armed) {
-        curMode = tripped;
-        play_music(doof);
-        writeColor(255,0,255);
-    }
-    
-}
-    
-    
