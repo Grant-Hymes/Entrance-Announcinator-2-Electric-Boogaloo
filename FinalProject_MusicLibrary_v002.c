@@ -12,11 +12,6 @@
 /*
  * Things to have in higher level form:
  * 
- * Allowing input of "C3" instead of "C, 3" for the set note
- * Making it easier to notate the length of each note so that it doesn't have to be manually done
- * 
- * + Input is "1C3" with the form {'beats to hold', 'pitch', 'octave'}
- * 
  * Test the possibility of adding a harmony using a second speaker/buzzer
  *      This should be possible by calculating off the PRx value for the main melody
  *      but would just need math from that, other aspects using the timer should be
@@ -143,16 +138,16 @@ long int note_char_to_int(char note) {
 
 /**
  * Converts a char representation of a number in hex into its integer value
- * @param length char of what is to be converted. the letter values of hex are supported in either uppercase or lowercase
+ * @param length char of what is to be converted. The letter values of a (10) through w (32) are supported in either uppercase or lowercase
  * @return int value representation of what length was. 0 is returned by default if the char length is not something
  *         represented in hexadecimal
  */
 int length_char_to_int(char length) {
     if (length>='0' && length<='9')
         return length - '0';
-    if (length>='a' && length<='f')
+    if (length>='a' && length<='w')
         return length + 10 - 'a';
-    if (length>='A' && length<='F')
+    if (length>='A' && length<='W')
         return length + 10 - 'A';
     return 0;
 }
