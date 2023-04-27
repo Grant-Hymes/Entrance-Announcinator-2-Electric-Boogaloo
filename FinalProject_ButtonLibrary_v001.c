@@ -13,7 +13,7 @@
 void initButtons(int pin1, int pin2) {
     
     // ensures both pins are within 6 to 9
-    if ((pin1||pin2) < 6 || (pin1||pin2) > 9) {
+    if ( (pin1 < 6) || (pin1 > 9) || (pin2 < 6) || (pin2 > 9) ) {
         return;
     }
     
@@ -23,16 +23,16 @@ void initButtons(int pin1, int pin2) {
     }
     
     // sets pull up resistors and pin input
-    if ( (pin1 || pin2) == 6){
+    if ( (pin1 == 6) || (pin2 == 6) ) {
         TRISBbits.TRISB6 = 1;
         CNPU2bits.CN24PUE = 1; // set RP6 pull up resistor
-    } else if ( (pin1 || pin2) == 7) {
+    } if ( (pin1 == 7) || (pin2 == 7) ) {
         TRISBbits.TRISB7 = 1;
         CNPU2bits.CN23PUE = 1; // set RP7 pull up resistor
-    } else if ( (pin1 || pin2) == 8) {
+    } if ( (pin1 == 8) || (pin2 == 8) ) {
         TRISBbits.TRISB8 = 1;
         CNPU2bits.CN22PUE = 1; // set RP8 pull up resistor
-    } else if ( (pin1 || pin2) == 9) {
+    } if ( (pin1 == 9) || (pin2 == 9) ) {
         TRISBbits.TRISB9 = 1;
         CNPU2bits.CN21PUE = 1; // set RP9 pull up resistor
     }

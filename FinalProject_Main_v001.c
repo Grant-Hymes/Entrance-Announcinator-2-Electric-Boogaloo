@@ -81,7 +81,7 @@ void setup(void)
     writeColor(255,80,0);
 }
 
-int main() {
+int main(){
     setup();    
     initButtons(7,6);
     init_speaker(8);
