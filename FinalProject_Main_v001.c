@@ -78,14 +78,16 @@ void setup(void)
     AD1PCFG = 0x9fff;            //sets all pins to digital I/O
     TRISA = 0b1111111111111110;  //Set pin RA0 to output
     LATA = 0x0001;               //Set pin RA0 high
-    
-    curMode = startup;
-    writeColor(255,80,0);
+     
 }
 
 int main() {
-     
+       
     setup();    
+    
+    curMode = startup;
+    writeColor(255,80,0);  
+    
     initButtons(7,6);
     init_speaker(8);
     initMotionSensor(9);
