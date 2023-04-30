@@ -9,15 +9,6 @@
 #include "xc.h"
 #include <stdlib.h>
 
-/*
- * Things to have in higher level form:
- * 
- * Test the possibility of adding a harmony using a second speaker/buzzer
- *      This should be possible by calculating off the PRx value for the main melody
- *      but would just need math from that, other aspects using the timer should be
- *      pretty much the same as the main melody
- */
-
 // cycles = 1 / freq / Tcy
 // Octave 1 cycles, assuming Fcy = 16MHz
 
@@ -125,7 +116,7 @@ void init_speaker(int pin) {
  * @param leftPin selects the pin that the speaker / output compare 1 will be mapped to works with pins 6 through 9
  * @param rightPin selects the pin that the speaker / output compare 2 will be mapped to works with pins 6 through 9
  */
-void init_speaker_stereo(int leftPin, rightPin) {
+void init_speaker_stereo(int leftPin, int rightPin) {
     
     // ensures pins are within 6 to 9
     if (leftPin < 6 || leftPin > 9 || rightPin < 6 || rightPin > 9 || leftPin == rightPin) {
@@ -374,6 +365,40 @@ int play_music(struct Song s) {
     return 0;
 }
 
+int play_music_stereo(struct StereoSong s) {
+    set_tempo(s.tempo);
+    T5CONbits.TON = 1;
+    int index[2];
+    int hold_counter[2] = {s.leftNotes[0][0] - '0', s.rightNotes[0][0] - '0'};
+    char note[2];
+    int octave[2];
+    int update = 1;
+    while(1) {
+        if(!hold_counter[0] && index[0] < s.size[0]) {
+            hold_counter[0] = s.leftNotes[index[0]++][0] - '0';
+            update = 1;
+        }
+        if(!hold_counter[1] && index[1] < s.size[1]) {
+            hold_counter[1] = s.leftNotes[index[1]++][0] - '0';
+            update = 1;
+        }
+
+        note[0] = s.leftNotes[index[0]][1];
+        note[1] = s.rightNotes[index[1]][1];
+        octave[0] = length_char_to_int(s.leftNotes[index[0]][2]);
+        octave[1] = length_char_to_int(s.rightNotes[index[1]][2]);
+
+        if (update) {
+            set_note_stereo(note, octave);
+            update = 0;
+        }
+
+        if(index[0] >= s.size[0] && index[1] >= s.size[1] && 
+           !hold_counter[0] && !hold_counter[1]) return 0;
+    }
+    return 0;
+}
+
 /**
  * Plays a single note for a given number of seconds
  * @param note Char array with first element representing the note, second element is the octave
@@ -388,9 +413,9 @@ void play_note(char note[], int seconds) {
 
 void play_note_stereo(char note[], char octave[], int seconds) {
     int iOct[] = {length_char_to_int(octave[0]), length_char_to_int(octave[1])};
-    set_note_stereo(note[], iOct[]);
+    set_note_stereo(note, iOct);
     delay_ms2(1000 * seconds);
     char rest[] = {' ', ' '};
-    set_note(rest[], iOct[]);
+    set_note_stereo(rest, iOct);
     
 }
