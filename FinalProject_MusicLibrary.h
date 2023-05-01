@@ -12,12 +12,17 @@
 extern "C" {
 #endif
     struct Song;
+    struct StereoSong;
     
     int play_music(struct Song s);
+    int play_music_stereo(struct StereoSong s);
     void set_note(char note, int octave);
+    void set_note_stereo(char note[], int octave[]);
     void init_tempo(int tempo);
     void init_speaker(int pin);
+    void init_speaker_stereo(int leftPin, int rightPin);
     void play_note(char note[], int seconds);
+    void play_note_stereo(char note[], char octave[], int seconds);
 #ifdef	__cplusplus
 }
 #endif

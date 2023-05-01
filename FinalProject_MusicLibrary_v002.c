@@ -367,13 +367,16 @@ int play_music(struct Song s) {
 
 int play_music_stereo(struct StereoSong s) {
     set_tempo(s.tempo);
-    T5CONbits.TON = 1;
     int index[2];
     int hold_counter[2] = {s.leftNotes[0][0] - '0', s.rightNotes[0][0] - '0'};
     char note[2];
     int octave[2];
     int update = 1;
+    T5CONbits.TON = 1;
     while(1) {
+        while(_T5IF == 0);
+        _T5IF = 0;
+        
         if(!hold_counter[0] && index[0] < s.size[0]) {
             hold_counter[0] = s.leftNotes[index[0]++][0] - '0';
             update = 1;

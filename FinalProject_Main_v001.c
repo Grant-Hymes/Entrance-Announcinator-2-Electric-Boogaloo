@@ -44,6 +44,13 @@ struct Song {
     char notes[128][3];
 };
 
+struct StereoSong {
+        int tempo;
+        int size[2];
+        char leftNotes[128][3];
+        char rightNotes[128][3];
+};
+
 /*
  * How to input a song:
  * 
@@ -67,6 +74,10 @@ struct Song perry = {172, 16,
 {"1D2", "1D2", "1E2", "1D2", "2F2", "1G2", "2D2", "1D2", "1E2", "1D2", "2F2", 
         "2G2", "2A3", "1a3", "3A3", "1 3"}};
 
+struct StereoSong test = {80, {5, 5}, 
+{"4C3", "4A2", "4C3", "4g3", "A 3"}, 
+{"4C4", "4A3", "4C4", "4g4", "A 4"}};
+
 enum mode curMode;
 int setRange = 0; // range the sensor is calibrated to be at default
 int curRange = 0; // current range being measured by the sensor
@@ -86,25 +97,26 @@ void setup(void)
 int main() {
      
     setup();    
-    initButtons(7,6);
-    init_speaker(8);
-    initMotionSensor(9);
+    //initButtons(7,6);
+    init_speaker(6);
+    //initMotionSensor(9);
     // lidar_init();
     
     curMode = ready;
     writeColor(0,0,255);
     
     while(1) {
-        while(status == 0);
-        status = 0;
-       
-        if (curMode == armed) {
-            curMode = tripped;
-            play_music(doof);
-            writeColor(255,0,255);
-       }
-       
-           
+//        while(status == 0);
+//        status = 0;
+//       
+//        if (curMode == armed) {
+//            curMode = tripped;
+//            play_music(doof);
+//            writeColor(255,0,255);
+//       }
+        int oct[] = {3,3};
+        set_note('C', 3);
+        
     }
     
     return 0;
