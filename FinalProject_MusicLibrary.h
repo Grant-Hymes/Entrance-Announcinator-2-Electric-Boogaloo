@@ -17,6 +17,8 @@ extern "C" {
     int play_music(struct Song s);
     int play_music_stereo(struct StereoSong s);
     void set_note(char note, int octave);
+    void set_note_left(char note, int octave);
+    void set_note_right(char note, int octave);
     void set_note_stereo(char note[], int octave[]);
     void init_tempo(int tempo);
     void init_speaker(int pin);

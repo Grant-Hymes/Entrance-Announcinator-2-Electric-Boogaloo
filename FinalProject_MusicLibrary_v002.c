@@ -304,7 +304,49 @@ void set_note(char note, int octave) {
     OC1RS = pr3 / 2;
 }
 
+void set_note_left(char note, int octave) {
+    if(note == ' ') { // Sets a silent note by setting a 0% duty cycle
+        OC1RS = 0;
+        return;
+    }
+    long int cycles = note_to_cycles(note, octave);
+    int prescaler = calculate_prescaler(cycles);
+    int pr3 = calculate_PRx(cycles, prescaler);
+    
+    
+    T3CON = 0;
+    T3CONbits.TCKPS = prescaler;
+    TMR3 = 0;
+    PR3 = pr3;
+    
+    T3CONbits.TON = 1;
+    OC1RS = pr3 / 2;
+}
+
+void set_note_right(char note, int octave) {
+    if(note == ' ') { // Sets a silent note by setting a 0% duty cycle
+        OC2RS = 0;
+        return;
+    }
+    long int cycles = note_to_cycles(note, octave);
+    int prescaler = calculate_prescaler(cycles);
+    int pr4 = calculate_PRx(cycles, prescaler);
+    
+    
+    T4CON = 0;
+    T4CONbits.TCKPS = prescaler;
+    TMR4 = 0;
+    PR4 = pr4;
+    
+    T4CONbits.TON = 1;
+    OC2RS = pr4 / 2;
+}
+
 void set_note_stereo(char note[], int octave[]) {
+    set_note_left(note[0], octave[0]);
+    set_note_right(note[1], octave[1]);
+    return;
+    
     if(note[0] == ' ' && note[1] == ' ') { // Sets a silent note by setting a 0% duty cycle
         OC1RS = 0;
         OC2RS = 0;
@@ -367,22 +409,20 @@ int play_music(struct Song s) {
 
 int play_music_stereo(struct StereoSong s) {
     set_tempo(s.tempo);
-    int index[2];
+    int index[2] = {0, 0};
     int hold_counter[2] = {s.leftNotes[0][0] - '0', s.rightNotes[0][0] - '0'};
-    char note[2];
-    int octave[2];
+    char note[2] = {' ', ' '};
+    int octave[2] = {3, 3};
     int update = 1;
     T5CONbits.TON = 1;
     while(1) {
-        while(_T5IF == 0);
-        _T5IF = 0;
         
-        if(!hold_counter[0] && index[0] < s.size[0]) {
+        if(hold_counter[0] == 0 && index[0] < s.size[0]) {
             hold_counter[0] = s.leftNotes[index[0]++][0] - '0';
             update = 1;
         }
-        if(!hold_counter[1] && index[1] < s.size[1]) {
-            hold_counter[1] = s.leftNotes[index[1]++][0] - '0';
+        if(hold_counter[1] == 0 && index[1] < s.size[1]) {
+            hold_counter[1] = s.rightNotes[index[1]++][0] - '0';
             update = 1;
         }
 
@@ -395,6 +435,12 @@ int play_music_stereo(struct StereoSong s) {
             set_note_stereo(note, octave);
             update = 0;
         }
+        
+        while(_T5IF == 0);
+        _T5IF = 0;
+        
+        hold_counter[0]--;
+        hold_counter[1]--;
 
         if(index[0] >= s.size[0] && index[1] >= s.size[1] && 
            !hold_counter[0] && !hold_counter[1]) return 0;
